@@ -1,15 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
-	"gopkg.in/urfave/cli.v1"
+	"github.com/andricdu/go-song/cmd"
 )
 
 func main() {
-	app := cli.NewApp()
-
-	app.Commands = GetCommands()
-
-	app.Run(os.Args)
+	if err := cmd.RootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
