@@ -55,12 +55,19 @@ func doConfigure() {
 	fmt.Println("Please enter URL of SONG server: ")
 	fmt.Scanln(&songURL)
 
+	var study string
+	fmt.Println("Please enter study ID: ")
+	fmt.Scanln(&study)
+
 	accessTokenConfig := "accessToken: " + accessToken + "\n"
 	songURLConfig := "songURL: " + songURL + "\n"
+	studyConfig := "study: " + study + "\n"
 
 	_, err = file.WriteString(accessTokenConfig)
 	check(err)
 	_, err = file.WriteString(songURLConfig)
+	check(err)
+	_, err = file.WriteString(studyConfig)
 	check(err)
 	file.Sync()
 }

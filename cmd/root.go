@@ -13,6 +13,7 @@ import (
 var cfgFile string
 var accessTokenFlag string
 var songURLFlag string
+var studyFlag string
 
 var configErrorMsg = `Fatal error, could not find appropriate configuration values.
 Please use the configure command, --config option, or --accessToken and --songURL`
@@ -40,8 +41,9 @@ func Execute() {
 func VerifyConfig() {
 	accessToken := viper.Get("accessToken")
 	songURL := viper.Get("songURL")
+	study := viper.Get("study")
 
-	if accessToken == nil || accessToken == "" || songURL == nil || songURL == "" {
+	if accessToken == nil || accessToken == "" || songURL == nil || songURL == "" || study == nil || study == "" {
 		color.Red("Fatal Error. Missing configuration values.")
 		color.Red("See --help for additional information.")
 	}
@@ -56,6 +58,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "use a config file (default is $HOME/.song.yaml)")
 	RootCmd.PersistentFlags().StringVar(&accessTokenFlag, "accessToken", "", "Provide an access token for authorizing operations to SONG")
 	RootCmd.PersistentFlags().StringVar(&songURLFlag, "songURL", "", "url of SONG server")
+	RootCmd.PersistentFlags().StringVar(&studyFlag, "study", "", "study to operate on")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -90,6 +93,9 @@ func initConfig() {
 	}
 	if songURLFlag != "" {
 		viper.Set("songURL", songURLFlag)
+	}
+	if songURLFlag != "" {
+		viper.Set("study", studyFlag)
 	}
 
 }
