@@ -5,4 +5,6 @@ go:
 
 go_import_path: github.com/andricDu/go-song
 
-install: make
+install: 
+  - go get github.com/andricDu/go-song/cmd
+  - make
