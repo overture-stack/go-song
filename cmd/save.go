@@ -10,26 +10,26 @@ import (
 )
 
 func init() {
-	RootCmd.AddCommand(statusCmd)
+	RootCmd.AddCommand(saveCmd)
 }
 
-func getStatus(uploadID string) {
+func save(uploadID string) {
 	studyID, accessToken := viper.GetString("study"), viper.GetString("accessToken")
 	songURL, err := url.Parse(viper.GetString("songURL"))
 	if err != nil {
 		panic(err)
 	}
 	client := song.CreateClient(accessToken, songURL)
-	responseBody := client.GetStatus(studyID, uploadID)
+	responseBody := client.Save(studyID, uploadID)
 	fmt.Println(string(responseBody))
 }
 
-var statusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Get status of uploaded analysis",
-	Long:  `Get status of uploaded analysis`,
+var saveCmd = &cobra.Command{
+	Use:   "save",
+	Short: "Save the uploaded Analysis",
+	Long:  `Save the uploaded Analysis`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		getStatus(args[0])
+		save(args[0])
 	},
 }
