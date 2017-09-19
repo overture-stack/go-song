@@ -3,5 +3,4 @@ language: go
 go:
   - master
 
-script:
-  - "go build"
+go_import_path: github.com/andricDu/go-song
