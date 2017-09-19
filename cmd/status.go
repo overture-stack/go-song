@@ -16,15 +16,20 @@ func init() {
 	RootCmd.AddCommand(statusCmd)
 }
 
-func getStatus(uploadID string) {
+func createClient() *http.Client {
 	tr := &http.Transport{
 		MaxIdleConns:    10,
 		IdleConnTimeout: 30 * time.Second,
 	}
 	client := &http.Client{Transport: tr}
+	return client
+}
 
-	study := viper.GetString("study")
-	accessToken := viper.GetString("accessToken")
+func getStatus(uploadID string) {
+
+	client := createClient()
+
+	study, accessToken := viper.GetString("study"), viper.GetString("accessToken")
 	songURL, err := url.Parse(viper.GetString("songURL"))
 	if err != nil {
 		panic(err)
