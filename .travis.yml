@@ -1,6 +1,8 @@
 language: go
 
 go:
-  - master
+  - 1.9
 
 go_import_path: github.com/andricDu/go-song
+
+install: make
