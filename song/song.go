@@ -117,3 +117,31 @@ func (c *Client) Save(studyID string, uploadID string) string {
 	body, _ := ioutil.ReadAll(resp.Body)
 	return string(body)
 }
+
+// Publish publishes a specified saved analysisID
+func (c *Client) Publish(studyID string, analysisID string) string {
+	requestURL := *c.songURL
+	requestURL.Path = path.Join(c.songURL.Path, "studies", studyID, "publish", analysisID)
+	req, err := http.NewRequest("POST", requestURL.String(), nil)
+	if err != nil {
+		panic(err)
+	}
+
+	req.Header.Add("Authorization", "Bearer "+c.accessToken)
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+
+	// To compare status codes, you should always use the status constants
+	// provided by the http package.
+	if resp.StatusCode != http.StatusOK {
+		panic("Request was not OK: " + resp.Status)
+	}
+
+	// Example of JSON decoding on a reader.
+	body, _ := ioutil.ReadAll(resp.Body)
+	return string(body)
+}
