@@ -61,22 +61,7 @@ func (c *Client) Upload(studyID string, byteContent []byte) string {
 
 	req.Header.Add("Authorization", "Bearer "+c.accessToken)
 	req.Header.Add("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		panic(err)
-	}
-
-	defer resp.Body.Close()
-
-	// To compare status codes, you should always use the status constants
-	// provided by the http package.
-	if resp.StatusCode != http.StatusOK {
-		panic("Request was not OK: " + resp.Status)
-	}
-
-	// Example of JSON decoding on a reader.
-	body, _ := ioutil.ReadAll(resp.Body)
-	return string(body)
+	return c.makeRequest(req)
 }
 
 // GetStatus return the status JSON of an uploadID
@@ -89,22 +74,7 @@ func (c *Client) GetStatus(studyID string, uploadID string) string {
 	}
 
 	req.Header.Add("Authorization", "Bearer "+c.accessToken)
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		panic(err)
-	}
-
-	defer resp.Body.Close()
-
-	// To compare status codes, you should always use the status constants
-	// provided by the http package.
-	if resp.StatusCode != http.StatusOK {
-		panic("Request was not OK: " + resp.Status)
-	}
-
-	// Example of JSON decoding on a reader.
-	body, _ := ioutil.ReadAll(resp.Body)
-	return string(body)
+	return c.makeRequest(req)
 }
 
 // Save saves the specified uploadID as an analysis assuming it had passed validation
@@ -117,22 +87,7 @@ func (c *Client) Save(studyID string, uploadID string) string {
 	}
 
 	req.Header.Add("Authorization", "Bearer "+c.accessToken)
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		panic(err)
-	}
-
-	defer resp.Body.Close()
-
-	// To compare status codes, you should always use the status constants
-	// provided by the http package.
-	if resp.StatusCode != http.StatusOK {
-		panic("Request was not OK: " + resp.Status)
-	}
-
-	// Example of JSON decoding on a reader.
-	body, _ := ioutil.ReadAll(resp.Body)
-	return string(body)
+	return c.makeRequest(req)
 }
 
 // Publish publishes a specified saved analysisID
@@ -145,6 +100,10 @@ func (c *Client) Publish(studyID string, analysisID string) string {
 	}
 
 	req.Header.Add("Authorization", "Bearer "+c.accessToken)
+	return c.makeRequest(req)
+}
+
+func (c *Client) makeRequest(req *http.Request) string {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		panic(err)
