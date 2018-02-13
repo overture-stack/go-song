@@ -22,7 +22,7 @@ import (
 	"io/ioutil"
 	"net/url"
 
-	"github.com/andricdu/go-song/song"
+	"github.com/overture-stack/song-client/song"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -50,12 +50,13 @@ func upload(filePath string) {
 	}
 
 	// use song client
-	responseBody := client.Upload(studyID, b)
+	var async=false
+	responseBody := client.Upload(studyID, b, async)
 	fmt.Println(string(responseBody))
 }
 
 var uploadCmd = &cobra.Command{
-	Use:   "upload",
+	Use:   "upload <filename>",
 	Short: "Upload Analysis Metadata",
 	Long:  `Uploads Metadata JSON describing an analysis and files for validation`,
 	Run: func(cmd *cobra.Command, args []string) {

@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/andricdu/go-song/cmd"
+	"github.com/overture-stack/song-client/cmd"
 )
 
 func main() {
