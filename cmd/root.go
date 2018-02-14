@@ -37,7 +37,7 @@ Please use the configure command, --config option, or --accessToken and --songUR
 
 // RootCmd is the Base Command for CLI Application
 var RootCmd = &cobra.Command{
-	Use:   `song`,
+	// Use:   `mrap`,
 	Short: `CLI Utility for uploading metadata to a SONG repository`,
 	Long:  `CLI Utility for uploading metadata to a SONG repository`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -76,10 +76,6 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&accessTokenFlag, "accessToken", "", "Provide an access token for authorizing operations to SONG")
 	RootCmd.PersistentFlags().StringVar(&songURLFlag, "songURL", "", "url of SONG server")
 	RootCmd.PersistentFlags().StringVar(&studyFlag, "study", "", "study to operate on")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.

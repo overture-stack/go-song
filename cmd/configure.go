@@ -26,8 +26,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var editConfig bool
 func init() {
 	RootCmd.AddCommand(configureCmd)
+	configureCmd.Flags().BoolVarP(&editConfig,"edit","e",false,"Edit configuration")
+}
+func doConfigure() {
+   if editConfig {
+	editConfiguration()
+	return
+   }
+   fmt.Println("Pretending to show configuration details here...")
+
 }
 
 func check(e error) {
@@ -50,7 +60,8 @@ func verifyPath(fullPath string) {
 	}
 }
 
-func doConfigure() {
+
+func editConfiguration() {
 	home, err := homedir.Dir()
 	if err != nil {
 		fmt.Println(err)

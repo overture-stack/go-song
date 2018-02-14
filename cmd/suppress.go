@@ -19,28 +19,36 @@ package cmd
 
 import (
 	"fmt"
+	"net/url"
+
+	"github.com/overture-stack/song-client/song"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-var iFlag bool
+
 func init() {
-	RootCmd.AddCommand(saveCmd)
-	saveCmd.Flags().BoolVarP(&iFlag,"ignoreCollisions","i",false, "ignore Collisions with IDs")
+	RootCmd.AddCommand(suppressCmd)
 }
 
-func save(uploadID string) {
-	studyID := viper.GetString("study")
-	client := createClient() 
-	responseBody := client.Save(studyID, uploadID, iFlag)
+func suppress(analysisID string) {
+	// init song client
+	studyID, accessToken := viper.GetString("study"), viper.GetString("accessToken")
+	songURL, err := url.Parse(viper.GetString("songURL"))
+	if err != nil {
+		panic(err)
+	}
+	client := song.CreateClient(accessToken, songURL)
+
+	// use song client
+	responseBody := client.Suppress(studyID, analysisID)
 	fmt.Println(string(responseBody))
 }
 
-var saveCmd = &cobra.Command{
-	Use:   "save <uploadID>",
-	Short: "Save the uploaded Analysis",
-	Long:  `Save the uploaded Analysis`,
-	Args:  cobra.MinimumNArgs(1),
+var suppressCmd = &cobra.Command{
+	Use:   "suppress <analysisID>",
+	Short: "Suppress Analysis",
+	Long:  `Suppresses an analysis`,
 	Run: func(cmd *cobra.Command, args []string) {
-		save(args[0])
+		upload(args[0])
 	},
 }

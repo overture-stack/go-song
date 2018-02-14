@@ -19,28 +19,32 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-var iFlag bool
+
 func init() {
-	RootCmd.AddCommand(saveCmd)
-	saveCmd.Flags().BoolVarP(&iFlag,"ignoreCollisions","i",false, "ignore Collisions with IDs")
+	RootCmd.AddCommand(manifestCmd)
 }
 
-func save(uploadID string) {
+func manifest(analysisID string, filePath string) {
+	client := createClient()
 	studyID := viper.GetString("study")
-	client := createClient() 
-	responseBody := client.Save(studyID, uploadID, iFlag)
-	fmt.Println(string(responseBody))
+	responseBody := client.Manifest(studyID, analysisID)
+
+	// read the file
+	err := ioutil.WriteFile(filePath, []byte(responseBody), 0644)
+	if err != nil {
+		fmt.Print(err)
+	}
 }
 
-var saveCmd = &cobra.Command{
-	Use:   "save <uploadID>",
-	Short: "Save the uploaded Analysis",
-	Long:  `Save the uploaded Analysis`,
-	Args:  cobra.MinimumNArgs(1),
+var manifestCmd = &cobra.Command{
+	Use:   "manifest <analysisID> <filename>",
+	Short: "Upload Analysis Metadata",
+	Long:  `Uploads Metadata JSON describing an analysis and files for validation`,
 	Run: func(cmd *cobra.Command, args []string) {
-		save(args[0])
+		manifest(args[0], args[1])
 	},
 }

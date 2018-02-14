@@ -20,37 +20,32 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
-	"net/url"
-
-	"github.com/overture-stack/song-client/song"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
+var asyncFlag bool
 func init() {
 	RootCmd.AddCommand(uploadCmd)
+	uploadCmd.Flags().BoolP("async", "a", false, "Upload asynchronously")
+	viper.BindPFlag("async", RootCmd.Flags().Lookup("async"))
 }
 
 func upload(filePath string) {
-	// init song client
-	studyID, accessToken := viper.GetString("study"), viper.GetString("accessToken")
-	songURL, err := url.Parse(viper.GetString("songURL"))
-	if err != nil {
-		panic(err)
-	}
-	client := song.CreateClient(accessToken, songURL)
+	studyID := viper.GetString("study")
+	async := viper.GetBool("async")
 
 	// read the file
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		fmt.Print(err)
 	}
+
 	if len(b) < 1 {
 		panic("File does not have any content!")
 	}
-
-	// use song client
-	var async=false
+	
+	client := createClient()
 	responseBody := client.Upload(studyID, b, async)
 	fmt.Println(string(responseBody))
 }

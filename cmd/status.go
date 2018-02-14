@@ -19,26 +19,26 @@ package cmd
 
 import (
 	"fmt"
-	"net/url"
-
-	"github.com/overture-stack/song-client/song"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
+var pFlag bool
 func init() {
 	RootCmd.AddCommand(statusCmd)
+	statusCmd.Flags().BoolVarP(&pFlag,"ping","p",false,"Just check if server is alive")
 }
 
 func getStatus(uploadID string) {
-	studyID, accessToken := viper.GetString("study"), viper.GetString("accessToken")
-	songURL, err := url.Parse(viper.GetString("songURL"))
-	if err != nil {
-		panic(err)
-	}
-	client := song.CreateClient(accessToken, songURL)
-	responseBody := client.GetStatus(studyID, uploadID)
-	fmt.Println(string(responseBody))
+	var responseBody string
+	studyID := viper.GetString("study")
+	client := createClient() 
+	if (pFlag) {
+	    responseBody = client.GetServerStatus()
+	} else {
+	    responseBody = client.GetStatus(studyID, uploadID)
+        }
+	fmt.Println(responseBody)
 }
 
 var statusCmd = &cobra.Command{

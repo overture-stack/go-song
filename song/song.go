@@ -23,15 +23,16 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-	"github.com/overture-stack/song-client/endpoint"
 )
 
 // Client struct allowing for making REST calls to a SONG server
 type Client struct {
 	accessToken string
 	httpClient  *http.Client
-	URLGenerator *endpoint.Endpoint
+	URLGenerator *Endpoint
 }
+
+type EndpointHandler func(... string) *http.Request 
 
 // CreateClient is a Factory Function for creating and returning a SONG client
 func CreateClient(accessToken string, base *url.URL) *Client {
@@ -40,7 +41,7 @@ func CreateClient(accessToken string, base *url.URL) *Client {
 		IdleConnTimeout: 30 * time.Second,
 	}
 	httpClient := &http.Client{Transport: tr}
-	songEndpoints := &endpoint.Endpoint{base}
+	songEndpoints := &Endpoint{base}
 
 	client := &Client{
 		accessToken: accessToken,
@@ -52,8 +53,7 @@ func CreateClient(accessToken string, base *url.URL) *Client {
 }
 
 // helper functions
-
-func (c *Client) post(url url.URL, body []byte) string {
+func (c *Client) post(address url.URL, body []byte) string {
 	var reader *bytes.Reader 
 
 	if body == nil {
@@ -62,7 +62,7 @@ func (c *Client) post(url url.URL, body []byte) string {
 		reader = nil 
 	}
 
-        req, err := http.NewRequest("POST", url.String(), reader)
+        req, err := http.NewRequest("POST", address.String(), reader)
 
 	if err != nil {
 		panic(err)
@@ -77,8 +77,8 @@ func (c *Client) post(url url.URL, body []byte) string {
 	return c.makeRequest(req)
 }
 
-func (c *Client) get(url url.URL) string {
-	req, err := http.NewRequest("GET", url.String(), nil)
+func (c *Client) get(address url.URL) string {
+	req, err := http.NewRequest("GET", address.String(), nil)
 	if err != nil {
 		panic(err)
 	}
@@ -140,18 +140,18 @@ func (c *Client) Suppress(studyID string, analysisID string) string {
 	return c.post(url, nil)
 }
 
-func (c *Client) GetAnalysis(studyID string, analysisID string) string {
+func (c *Client) getAnalysis(studyID string, analysisID string) string {
 	var url = c.URLGenerator.GetAnalysis(studyID, analysisID)
 	return c.post(url, nil)
 }
 
-func (c *Client) GetAnalysisFiles(studyID string, analysisID string) string {
+func (c *Client) getAnalysisFiles(studyID string, analysisID string) string {
 	var url = c.URLGenerator.GetAnalysisFiles(studyID, analysisID)
 	return c.get(url)
 }
 
-func (c *Client) IdSearch(studyID string, searchParams string) string {
-	var url = c.URLGenerator.IdSearch(studyID, searchParams) 
+func (c *Client) IdSearch(studyID string, params url.Values) string {
+	var url = c.URLGenerator.IdSearch(studyID, params.Encode()) 
 	return c.get(url)
 }
 
@@ -159,3 +159,9 @@ func (c *Client) InfoSearch(studyID string, includeInfo bool, searchTerms []stri
 	var url = c.URLGenerator.InfoSearch(studyID, includeInfo, searchTerms)
 	return c.get(url)
 } 
+
+func (c *Client) Manifest(studyID string, analysisID string) string {
+	var header = "\n"
+	var data = c.getAnalysisFiles(studyID,analysisID)	
+	return header + data
+}
