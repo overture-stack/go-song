@@ -27,13 +27,11 @@ import (
 var asyncFlag bool
 func init() {
 	RootCmd.AddCommand(uploadCmd)
-	uploadCmd.Flags().BoolP("async", "a", false, "Upload asynchronously")
-	viper.BindPFlag("async", RootCmd.Flags().Lookup("async"))
+	uploadCmd.Flags().BoolVarP(&asyncFlag,"async", "a", false, "Upload asynchronously")
 }
 
 func upload(filePath string) {
 	studyID := viper.GetString("study")
-	async := viper.GetBool("async")
 
 	// read the file
 	b, err := ioutil.ReadFile(filePath)
@@ -46,7 +44,7 @@ func upload(filePath string) {
 	}
 	
 	client := createClient()
-	responseBody := client.Upload(studyID, b, async)
+	responseBody := client.Upload(studyID, b, asyncFlag)
 	fmt.Println(string(responseBody))
 }
 
@@ -54,6 +52,7 @@ var uploadCmd = &cobra.Command{
 	Use:   "upload <filename>",
 	Short: "Upload Analysis Metadata",
 	Long:  `Uploads Metadata JSON describing an analysis and files for validation`,
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		upload(args[0])
 	},

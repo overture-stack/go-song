@@ -42,11 +42,16 @@ func getStatus(uploadID string) {
 }
 
 var statusCmd = &cobra.Command{
-	Use:   "status",
+	Use:   "status -p OR status <uploadID>",
 	Short: "Get status of uploaded analysis",
 	Long:  `Get status of uploaded analysis`,
-	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		getStatus(args[0])
+		var uploadID string
+		if len(args) > 0 {
+		   uploadID=args[0]
+		} else {
+		  uploadID="" 
+		}
+		getStatus(uploadID)
 	},
 }

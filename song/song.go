@@ -18,18 +18,20 @@
 package song
 
 import (
+	//"fmt"
 	"bytes"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
+	"encoding/json"
 )
 
 // Client struct allowing for making REST calls to a SONG server
 type Client struct {
 	accessToken string
 	httpClient  *http.Client
-	URLGenerator *Endpoint
+	endpoint *Endpoint
 }
 
 type EndpointHandler func(... string) *http.Request 
@@ -45,30 +47,15 @@ func CreateClient(accessToken string, base *url.URL) *Client {
 
 	client := &Client{
 		accessToken: accessToken,
-		URLGenerator: songEndpoints,
+		endpoint: songEndpoints,
 		httpClient:  httpClient,
 	}
 
 	return client
 }
 
-// helper functions
 func (c *Client) post(address url.URL, body []byte) string {
-	var reader *bytes.Reader 
-
-	if body == nil {
-		reader = bytes.NewReader(body) 
-	} else {
-		reader = nil 
-	}
-
-        req, err := http.NewRequest("POST", address.String(), reader)
-
-	if err != nil {
-		panic(err)
-	}
-
-	req.Header.Add("Authorization", "Bearer " + c.accessToken)
+        req  := createRequest("POST", address, body)
 
 	if body != nil {
 		req.Header.Add("Content-Type", "application/json")
@@ -77,17 +64,39 @@ func (c *Client) post(address url.URL, body []byte) string {
 	return c.makeRequest(req)
 }
 
+func (c *Client) put(address url.URL, body []byte) string {
+	req := createRequest("PUT", address, body)
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+
+	return c.makeRequest(req)
+}
+
 func (c *Client) get(address url.URL) string {
-	req, err := http.NewRequest("GET", address.String(), nil)
+	req := createRequest("GET", address, nil)
+	return c.makeRequest(req)
+}
+
+func createRequest(requestType string, address url.URL, body []byte) *http.Request {
+	var req *http.Request
+	var err error
+	if body == nil {
+		req, err = http.NewRequest(requestType, address.String(), nil)
+	} else {
+		req, err = http.NewRequest(requestType, address.String(), bytes.NewReader(body))
+	}
+
 	if err != nil {
 		panic(err)
 	}
 
-	req.Header.Add("Authorization", "Bearer "+c.accessToken)
-	return c.makeRequest(req)
+	return req
 }
 
 func (c *Client) makeRequest(req *http.Request) string {
+	req.Header.Add("Authorization", "Bearer " + c.accessToken)
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		panic(err)
@@ -95,73 +104,90 @@ func (c *Client) makeRequest(req *http.Request) string {
 
 	defer resp.Body.Close()
 
-	// To compare status codes, you should always use the status constants
-	// provided by the http package.
+	body, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
-		panic("Request was not OK: " + resp.Status)
+		panic("Request was not OK: " + resp.Status + string(body)) 
 	}
 
-	// Example of JSON decoding on a reader.
-	body, _ := ioutil.ReadAll(resp.Body)
 	return string(body)
 }
 
 // Upload uploads the file contents and returns the response
 func (c *Client) Upload(studyID string, byteContent []byte, async bool) string {
-        var url = c.URLGenerator.Upload(studyID, async)
+        var url = c.endpoint.Upload(studyID, async)
         return c.post(url, byteContent) 
 }
 
 // GetStatus return the status JSON of an uploadID
 func (c *Client) GetStatus(studyID string, uploadID string) string {
-	var url = c.URLGenerator.GetStatus(studyID, uploadID)
-        return c.get(url)
+	return c.get(c.endpoint.GetStatus(studyID, uploadID))
 }
 
 func (c *Client) GetServerStatus() string {
-	var url = c.URLGenerator.IsAlive()
-	return c.get(url)
+	return c.get(c.endpoint.IsAlive())
 }
 
 // Save saves the specified uploadID as an analysis assuming it had passed validation
 func (c *Client) Save(studyID string, uploadID string, ignoreCollisions bool) string {
-	var url = c.URLGenerator.Save(studyID, uploadID, ignoreCollisions)
-        return c.post(url,nil)
+	return c.post(c.endpoint.Save(studyID, uploadID, ignoreCollisions), nil)
 }
 
 // Publish publishes a specified saved analysisID
 func (c *Client) Publish(studyID string, analysisID string) string {
-	var url = c.URLGenerator.Publish(studyID, analysisID)
-        return c.post(url,nil)
+	return c.put(c.endpoint.Publish(studyID, analysisID),nil)
 }
 
 func (c *Client) Suppress(studyID string, analysisID string) string {
-	var url = c.URLGenerator.Suppress(studyID, analysisID)
-	return c.post(url, nil)
+	return c.put(c.endpoint.Suppress(studyID, analysisID),nil)
 }
 
 func (c *Client) getAnalysis(studyID string, analysisID string) string {
-	var url = c.URLGenerator.GetAnalysis(studyID, analysisID)
-	return c.post(url, nil)
+	return c.get(c.endpoint.GetAnalysis(studyID, analysisID))
 }
 
 func (c *Client) getAnalysisFiles(studyID string, analysisID string) string {
-	var url = c.URLGenerator.GetAnalysisFiles(studyID, analysisID)
-	return c.get(url)
+	return c.get(c.endpoint.GetAnalysisFiles(studyID, analysisID))
 }
 
-func (c *Client) IdSearch(studyID string, params url.Values) string {
-	var url = c.URLGenerator.IdSearch(studyID, params.Encode()) 
-	return c.get(url)
+func (c *Client) IdSearch(studyID string, ids map[string]string) string {
+	searchTerms, err := json.Marshal(ids)
+	if err != nil {
+		panic(err)
+	}
+	return c.post(c.endpoint.IdSearch(studyID), searchTerms)
 }
 
-func (c *Client) InfoSearch(studyID string, includeInfo bool, searchTerms []string) string {
-	var url = c.URLGenerator.InfoSearch(studyID, includeInfo, searchTerms)
-	return c.get(url)
-} 
+type InfoKey struct {
+	Key string  `json:"key"`
+	Value string `json:"value"`
+}
+
+type InfoSearchRequest struct {
+	IncludeInfo bool `json:"includeInfo"`
+	SearchTerms []InfoKey `json:"searchTerms"`
+}
+
+func createInfoSearchRequest(includeInfo bool, terms map[string]string) InfoSearchRequest {
+	var searchTerms = []InfoKey{}
+	for k,v := range terms {
+		searchTerms=append(searchTerms, InfoKey{k,v})
+	}
+	return InfoSearchRequest{includeInfo, searchTerms}
+}
+
+func (c *Client) InfoSearch(studyID string, includeInfo bool, terms map[string]string) string {
+	data := createInfoSearchRequest(includeInfo, terms)
+	searchRequest, err := json.Marshal(data) 
+
+	if err != nil {
+		panic(err)
+	}
+	return c.post(c.endpoint.InfoSearch(studyID), searchRequest)
+}
+
 
 func (c *Client) Manifest(studyID string, analysisID string) string {
-	var header = "\n"
 	var data = c.getAnalysisFiles(studyID,analysisID)	
-	return header + data
+	manifest := createManifest(analysisID, data)
+	return manifest
 }

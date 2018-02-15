@@ -20,9 +20,9 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path"
+	"io/ioutil"
 
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/spf13/viper"
 	"github.com/spf13/cobra"
 )
 
@@ -31,13 +31,27 @@ func init() {
 	RootCmd.AddCommand(configureCmd)
 	configureCmd.Flags().BoolVarP(&editConfig,"edit","e",false,"Edit configuration")
 }
-func doConfigure() {
-   if editConfig {
-	editConfiguration()
-	return
-   }
-   fmt.Println("Pretending to show configuration details here...")
 
+func doConfigure() {
+	file := viper.GetString("config")
+
+	if editConfig {
+		editConfiguration(file)
+		return
+   	}
+
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	fmt.Println("Showing configuration for config file '" + file+ "'")
+
+	if len(b) < 1 {
+		fmt.Println("Configuration file does not have any content!")
+	} else {
+		fmt.Println(string(b))
+	}
 }
 
 func check(e error) {
@@ -46,32 +60,9 @@ func check(e error) {
 	}
 }
 
-func verifyPath(fullPath string) {
-	_, err := os.Stat(fullPath)
-	if os.IsNotExist(err) {
-		fmt.Println("No configuration existing configuration file, creating new config.")
-	} else {
-		fmt.Println("Existing configuration found. Type 'y' to continue...")
-		var input string
-		fmt.Scanln(&input)
-		if input != "y" {
-			os.Exit(0)
-		}
-	}
-}
-
-
-func editConfiguration() {
-	home, err := homedir.Dir()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	fullPath := path.Join(home, ".song.yaml")
-	verifyPath(fullPath)
-
-	file, err := os.Create(fullPath)
+func editConfiguration(config string) {
+	fmt.Println("Setting configuration for config file '" + config + "'")
+	file, err := os.Create(config)
 	check(err)
 	defer file.Close()
 
@@ -102,8 +93,8 @@ func editConfiguration() {
 
 var configureCmd = &cobra.Command{
 	Use:   "configure",
-	Short: "configures SONG client",
-	Long:  `Sets configuration values in config file.`,
+	Short: "Show/Edit configuration",
+	Long:  `Shows configuration values in config file. Use -e to edit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		doConfigure()
 	},

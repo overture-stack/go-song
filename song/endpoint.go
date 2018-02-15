@@ -19,7 +19,6 @@ package song
 
 import (
 	"net/url"
-	"strings"
 	"path"
 )
 
@@ -60,13 +59,16 @@ func truth(condition bool) string {
 
 // Save saves the specified uploadID as an analysis assuming it had passed validation
 func (s *Endpoint) Save(studyID string, uploadID string, ignoreCollisions bool) url.URL {
-	
-	return s.makeURL("upload", studyID, "save", uploadID,"?ignoreAnalysisIDCollisions=" + truth(ignoreCollisions) )
+	u := s.makeURL("upload", studyID, "save", uploadID)
+	q := u.Query() 
+	q.Set("ignoreAnalysisIdCollisions", truth(ignoreCollisions))
+	u.RawQuery = q.Encode()
+        return u
 }
 
 // Publish publishes a specified saved analysisID
 func (s *Endpoint) Publish(studyID string, analysisID string) url.URL {
-	return s.makeURL("studies", studyID, "publish", analysisID)
+	return s.makeURL("studies", studyID, "analysis", "publish", analysisID)
 }
 
 func (s *Endpoint) Suppress(studyID string, analysisID string) url.URL {
@@ -81,12 +83,10 @@ func (s *Endpoint) GetAnalysisFiles(studyID string, analysisID string) url.URL {
 	return s.makeURL("studies",studyID, "analysis",analysisID,"files")
 }
 
-func (s *Endpoint) IdSearch(studyID string, searchParams string) url.URL {
-	return s.makeURL("studies", studyID, "analysis/search/id?", 
-		searchParams)
+func (s *Endpoint) IdSearch(studyID string) url.URL {
+	return s.makeURL("studies", studyID, "analysis","search","id")
 }
 
-func (s *Endpoint) InfoSearch(studyID string, includeInfo bool, searchTerms []string) url.URL {
-	var params = "info?includeInfo=" + truth(includeInfo) + "&" + strings.Join(searchTerms,"&")
-	return s.makeURL("studies", studyID, "search", params) 
+func (s *Endpoint) InfoSearch(studyID string) url.URL {
+	return s.makeURL("studies", studyID, "analysis", "search","info" ) 
 } 

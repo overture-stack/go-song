@@ -18,24 +18,50 @@
 package cmd
 
 import (
+	"strings"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"net/url"
 )
 var searchTerms []string 
 var includeInfo bool
 
+var analysisId, donorId, fileId, sampleId, specimenId string
+
 func init() {
 	RootCmd.AddCommand(searchCmd)
 	searchCmd.Flags().StringArrayVarP(&searchTerms, "search-terms","t", []string{},"List of seach terms")
-	searchCmd.Flags().StringP("analysis-id","a", "", "AnalysisID to match")
-	searchCmd.Flags().StringP("donor-id", "d", "", "DonorID to match")
-	searchCmd.Flags().StringP("file-id","f", "", "FileID to match")
-	searchCmd.Flags().StringP("sample-id", "m", "", "SampleID to match")
-	searchCmd.Flags().StringP("specimen-id", "p", "", "SampleID to match")
 	searchCmd.Flags().BoolVarP(&includeInfo, "info", "n", false, "Include info field")
+	searchCmd.Flags().StringVarP(&analysisId, "analysis-id","a", "", "AnalysisID to match")
+	searchCmd.Flags().StringVarP(&donorId, "donor-id", "d", "", "DonorID to match")
+	searchCmd.Flags().StringVarP(&fileId, "file-id","f", "", "FileID to match")
+	searchCmd.Flags().StringVarP(&sampleId, "sample-id", "m", "", "SampleID to match")
+	searchCmd.Flags().StringVarP(&specimenId, "specimen-id", "p", "", "Specimen ID to match")
+}
+
+func getIds() map[string]string {
+    var ids map[string]string = map[string]string{}
+
+    ids["analysisId"]=analysisId
+    ids["donorId"]=donorId
+    ids["specimenId"]=specimenId
+    ids["sampleId"]=sampleId
+    ids["fileId"]=fileId
 	
+    return ids
+}
+
+func getTerms() map[string]string {
+    ids := map[string]string{}
+    for _, t := range searchTerms {
+	x := strings.SplitN(t,"=",2)
+	if len(x) < 2 {
+	    fmt.Printf("Search term '%s' has no = sign; skipping it...\n", t)
+	} else {
+	    ids[x[0]] = x[1]
+	}
+    }
+    return ids
 }
 
 func search() {
@@ -47,27 +73,20 @@ func search() {
         // -sp specimen-id 
 	// -t search-terms ([]), -i info(false)
         var responseBody string
-	var params url.Values
 
 	if  len(searchTerms) > 0 {
-	    responseBody = client.InfoSearch(studyID, includeInfo, searchTerms)
+	    responseBody = client.InfoSearch(studyID, includeInfo, getTerms())
         } else {
-	    ids := [...]string{"sampleId", "specimenId", "donorId", "fileId"}
-	    for _, id := range ids {
-	   	val := viper.GetString(id)
-                if val != "" {
-		   params.Add(id,val)
-                }
-	    }
-	    responseBody = client.IdSearch(studyID, params)
+	    responseBody = client.IdSearch(studyID, getIds())
         }
+
 	fmt.Println(string(responseBody))
 }
 
 var searchCmd = &cobra.Command{
 	Use:   "search [options]",
-	Short: "Suppress Analysis",
-	Long:  `Suppresses an analysis`,
+	Short: "Search for an Analysis",
+	Long:  `Search for an analysis`,
 	Run: func(cmd *cobra.Command, args []string) {
 		search()
 	},

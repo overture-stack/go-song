@@ -15,41 +15,41 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cmd
+package song
 
 import (
-	"fmt"
-	"net/url"
-
-	"github.com/overture-stack/song-client/song"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"encoding/json"
 )
 
-func init() {
-	RootCmd.AddCommand(suppressCmd)
+type manifestFile struct {
+	Info map[string]string
+	ObjectId string
+	AnalysisId string
+	StudyId string
+	FileName string
+	FileSize int64 
+	FileType string
+	FileAccess string	
+	FileMd5sum string
 }
 
-func suppress(analysisID string) {
-	// init song client
-	studyID, accessToken := viper.GetString("study"), viper.GetString("accessToken")
-	songURL, err := url.Parse(viper.GetString("songURL"))
+func (f *manifestFile) String() string {
+     return f.ObjectId + "\t" + f.FileName + "\t" + f. FileMd5sum 
+	return ""
+}
+
+func createManifest(analysisID string, data string) string {
+	var foo []manifestFile
+
+	err := json.Unmarshal([]byte(data), &foo )
 	if err != nil {
-		panic(err)
+		panic("Can't unmarshal '" + data + "'")
 	}
-	client := song.CreateClient(accessToken, songURL)
 
-	// use song client
-	responseBody := client.Suppress(studyID, analysisID)
-	fmt.Println(string(responseBody))
-}
+	manifest := analysisID + "\t\t\n" 
+	for _, f := range foo {
+		manifest += f.String() + "\n"
+	}	
 
-var suppressCmd = &cobra.Command{
-	Use:   "suppress <analysisID>",
-	Short: "Suppress Analysis",
-	Long:  `Suppresses an analysis`,
-	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		suppress(args[0])
-	},
+	return manifest
 }
