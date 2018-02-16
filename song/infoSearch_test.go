@@ -16,40 +16,20 @@
  */
 
 package song
-
 import (
-	"encoding/json"
+    "fmt"
 )
 
-type manifestFile struct {
-	Info map[string]string
-	ObjectId string
-	AnalysisId string
-	StudyId string
-	FileName string
-	FileSize int64 
-	FileType string
-	FileAccess string	
-	FileMd5sum string
-}
+func ExampleSearch() {
+   x := map[string]string{ "search1": "one", "search2":"two" }
+   y := createInfoSearchJSON(true, x)
+  fmt.Printf("y=%s\n",y)
 
-func (f *manifestFile) String() string {
-     return f.ObjectId + "\t" + f.FileName + "\t" + f. FileMd5sum 
-	return ""
-}
+   x = map[string]string{ "a": "1", "b": "2", "c": "3" }
+   y = createInfoSearchJSON(false, x)
+   fmt.Printf("y=%s",y)
 
-func createManifest(analysisID string, data string) string {
-	var files []manifestFile
-
-	err := json.Unmarshal([]byte(data), &files )
-	if err != nil {
-		panic("Can't unmarshal '" + data + "'")
-	}
-
-	manifest := analysisID + "\t\t\n" 
-	for _, f := range files {
-		manifest += f.String() + "\n"
-	}	
-
-	return manifest
+//Output:
+//y={"includeInfo":true,"searchTerms":[{"key":"search1","value":"one"},{"key":"search2","value":"two"}]}
+//y={"includeInfo":false,"searchTerms":[{"key":"a","value":"1"},{"key":"b","value":"2"},{"key":"c","value":"3"}]}
 }

@@ -15,41 +15,36 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package song
+package song 
 
 import (
 	"encoding/json"
 )
-
-type manifestFile struct {
-	Info map[string]string
-	ObjectId string
-	AnalysisId string
-	StudyId string
-	FileName string
-	FileSize int64 
-	FileType string
-	FileAccess string	
-	FileMd5sum string
+type InfoKey struct {
+	Key string  `json:"key"`
+	Value string `json:"value"`
 }
 
-func (f *manifestFile) String() string {
-     return f.ObjectId + "\t" + f.FileName + "\t" + f. FileMd5sum 
-	return ""
+type InfoSearchRequest struct {
+	IncludeInfo bool `json:"includeInfo"`
+	SearchTerms []InfoKey `json:"searchTerms"`
 }
 
-func createManifest(analysisID string, data string) string {
-	var files []manifestFile
+func createInfoSearchRequest(includeInfo bool, terms map[string]string) InfoSearchRequest {
+	var searchTerms = []InfoKey{}
+	for k,v := range terms {
+		searchTerms=append(searchTerms, InfoKey{k,v})
+	}
+	return InfoSearchRequest{includeInfo, searchTerms}
+}
 
-	err := json.Unmarshal([]byte(data), &files )
+func createInfoSearchJSON(includeInfo bool, terms map[string]string) []byte {
+	data := createInfoSearchRequest(includeInfo, terms)
+	searchRequest, err := json.Marshal(data) 
+
 	if err != nil {
-		panic("Can't unmarshal '" + data + "'")
+		panic(err)
 	}
 
-	manifest := analysisID + "\t\t\n" 
-	for _, f := range files {
-		manifest += f.String() + "\n"
-	}	
-
-	return manifest
+	return searchRequest
 }
