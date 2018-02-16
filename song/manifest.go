@@ -22,34 +22,34 @@ import (
 )
 
 type manifestFile struct {
-	Info map[string]string
-	ObjectId string
+	Info       map[string]string
+	ObjectId   string
 	AnalysisId string
-	StudyId string
-	FileName string
-	FileSize int64 
-	FileType string
-	FileAccess string	
+	StudyId    string
+	FileName   string
+	FileSize   int64
+	FileType   string
+	FileAccess string
 	FileMd5sum string
 }
 
 func (f *manifestFile) String() string {
-     return f.ObjectId + "\t" + f.FileName + "\t" + f. FileMd5sum 
+	return f.ObjectId + "\t" + f.FileName + "\t" + f.FileMd5sum
 	return ""
 }
 
 func createManifest(analysisID string, data string) string {
 	var files []manifestFile
 
-	err := json.Unmarshal([]byte(data), &files )
+	err := json.Unmarshal([]byte(data), &files)
 	if err != nil {
 		panic("Can't unmarshal '" + data + "'")
 	}
 
-	manifest := analysisID + "\t\t\n" 
+	manifest := analysisID + "\t\t\n"
 	for _, f := range files {
 		manifest += f.String() + "\n"
-	}	
+	}
 
 	return manifest
 }

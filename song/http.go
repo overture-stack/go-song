@@ -15,17 +15,17 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package song 
+package song
 
 import (
 	"bytes"
 	"io/ioutil"
-	"net/url"
 	"net/http"
+	"net/url"
 )
 
 func (c *Client) post(address url.URL, body []byte) string {
-        req  := createRequest("POST", address, body)
+	req := createRequest("POST", address, body)
 
 	if body != nil {
 		req.Header.Add("Content-Type", "application/json")
@@ -66,7 +66,7 @@ func createRequest(requestType string, address url.URL, body []byte) *http.Reque
 }
 
 func (c *Client) makeRequest(req *http.Request) string {
-	req.Header.Add("Authorization", "Bearer " + c.accessToken)
+	req.Header.Add("Authorization", "Bearer "+c.accessToken)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -77,7 +77,7 @@ func (c *Client) makeRequest(req *http.Request) string {
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
-		panic("Request was not OK: " + resp.Status + string(body)) 
+		panic("Request was not OK: " + resp.Status + string(body))
 	}
 
 	return string(body)

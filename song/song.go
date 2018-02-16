@@ -19,17 +19,17 @@ package song
 
 import (
 	//"fmt"
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"time"
-	"encoding/json"
 )
 
 // Client struct allowing for making REST calls to a SONG server
 type Client struct {
 	accessToken string
 	httpClient  *http.Client
-	endpoint *Endpoint
+	endpoint    *Endpoint
 }
 
 // CreateClient is a Factory Function for creating and returning a SONG client
@@ -43,7 +43,7 @@ func CreateClient(accessToken string, base *url.URL) *Client {
 
 	client := &Client{
 		accessToken: accessToken,
-		endpoint: songEndpoints,
+		endpoint:    songEndpoints,
 		httpClient:  httpClient,
 	}
 
@@ -52,7 +52,7 @@ func CreateClient(accessToken string, base *url.URL) *Client {
 
 // Upload uploads the file contents and returns the response
 func (c *Client) Upload(studyID string, byteContent []byte, async bool) string {
-        return c.post(c.endpoint.Upload(studyID, async), byteContent) 
+	return c.post(c.endpoint.Upload(studyID, async), byteContent)
 }
 
 // GetStatus return the status JSON of an uploadID
@@ -71,11 +71,11 @@ func (c *Client) Save(studyID string, uploadID string, ignoreCollisions bool) st
 
 // Publish publishes a specified saved analysisID
 func (c *Client) Publish(studyID string, analysisID string) string {
-	return c.put(c.endpoint.Publish(studyID, analysisID),nil)
+	return c.put(c.endpoint.Publish(studyID, analysisID), nil)
 }
 
 func (c *Client) Suppress(studyID string, analysisID string) string {
-	return c.put(c.endpoint.Suppress(studyID, analysisID),nil)
+	return c.put(c.endpoint.Suppress(studyID, analysisID), nil)
 }
 
 func (c *Client) getAnalysis(studyID string, analysisID string) string {
@@ -100,7 +100,7 @@ func (c *Client) InfoSearch(studyID string, includeInfo bool, terms map[string]s
 }
 
 func (c *Client) Manifest(studyID string, analysisID string) string {
-	var data = c.getAnalysisFiles(studyID,analysisID)	
+	var data = c.getAnalysisFiles(studyID, analysisID)
 	manifest := createManifest(analysisID, data)
 	return manifest
 }

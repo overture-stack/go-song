@@ -22,15 +22,17 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
 var iFlag bool
+
 func init() {
 	RootCmd.AddCommand(saveCmd)
-	saveCmd.Flags().BoolVarP(&iFlag,"ignoreCollisions","i",false, "ignore Collisions with IDs")
+	saveCmd.Flags().BoolVarP(&iFlag, "ignoreCollisions", "i", false, "ignore Collisions with IDs")
 }
 
 func save(uploadID string) {
 	studyID := viper.GetString("study")
-	client := createClient() 
+	client := createClient()
 	responseBody := client.Save(studyID, uploadID, iFlag)
 	fmt.Println(string(responseBody))
 }

@@ -19,9 +19,9 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
 )
 
 func init() {

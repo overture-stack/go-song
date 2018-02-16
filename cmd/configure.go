@@ -19,17 +19,18 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"io/ioutil"
+	"os"
 
-	"github.com/spf13/viper"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var editConfig bool
+
 func init() {
 	RootCmd.AddCommand(configureCmd)
-	configureCmd.Flags().BoolVarP(&editConfig,"edit","e",false,"Edit configuration")
+	configureCmd.Flags().BoolVarP(&editConfig, "edit", "e", false, "Edit configuration")
 }
 
 func doConfigure() {
@@ -38,14 +39,14 @@ func doConfigure() {
 	if editConfig {
 		editConfiguration(file)
 		return
-   	}
+	}
 
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		fmt.Print(err)
 	}
 
-	fmt.Println("Showing configuration for config file '" + file+ "'")
+	fmt.Println("Showing configuration for config file '" + file + "'")
 
 	if len(b) < 1 {
 		fmt.Println("Configuration file does not have any content!")

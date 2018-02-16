@@ -85,7 +85,7 @@ func initConfig() {
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
-		viper.Set("config",cfgFile)
+		viper.Set("config", cfgFile)
 	} else {
 		// Find home directory.
 		home, err := homedir.Dir()
@@ -97,7 +97,7 @@ func initConfig() {
 		// Search config in home directory with name ".song" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".song")
-		viper.Set("config", filepath.Join(home,".song.yaml"))
+		viper.Set("config", filepath.Join(home, ".song.yaml"))
 	}
 
 	viper.AutomaticEnv() // Read in environment variables that match

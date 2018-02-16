@@ -18,50 +18,51 @@
 package cmd
 
 import (
-	"strings"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"strings"
 )
-var searchTerms []string 
+
+var searchTerms []string
 var includeInfo bool
 
 var analysisId, donorId, fileId, sampleId, specimenId string
 
 func init() {
 	RootCmd.AddCommand(searchCmd)
-	searchCmd.Flags().StringArrayVarP(&searchTerms, "search-terms","t", []string{},"List of seach terms")
+	searchCmd.Flags().StringArrayVarP(&searchTerms, "search-terms", "t", []string{}, "List of seach terms")
 	searchCmd.Flags().BoolVarP(&includeInfo, "info", "n", false, "Include info field")
-	searchCmd.Flags().StringVarP(&analysisId, "analysis-id","a", "", "AnalysisID to match")
+	searchCmd.Flags().StringVarP(&analysisId, "analysis-id", "a", "", "AnalysisID to match")
 	searchCmd.Flags().StringVarP(&donorId, "donor-id", "d", "", "DonorID to match")
-	searchCmd.Flags().StringVarP(&fileId, "file-id","f", "", "FileID to match")
+	searchCmd.Flags().StringVarP(&fileId, "file-id", "f", "", "FileID to match")
 	searchCmd.Flags().StringVarP(&sampleId, "sample-id", "m", "", "SampleID to match")
 	searchCmd.Flags().StringVarP(&specimenId, "specimen-id", "p", "", "Specimen ID to match")
 }
 
 func getIds() map[string]string {
-    var ids map[string]string = map[string]string{}
+	var ids map[string]string = map[string]string{}
 
-    ids["analysisId"]=analysisId
-    ids["donorId"]=donorId
-    ids["specimenId"]=specimenId
-    ids["sampleId"]=sampleId
-    ids["fileId"]=fileId
-	
-    return ids
+	ids["analysisId"] = analysisId
+	ids["donorId"] = donorId
+	ids["specimenId"] = specimenId
+	ids["sampleId"] = sampleId
+	ids["fileId"] = fileId
+
+	return ids
 }
 
 func getTerms() map[string]string {
-    ids := map[string]string{}
-    for _, t := range searchTerms {
-	x := strings.SplitN(t,"=",2)
-	if len(x) < 2 {
-	    fmt.Printf("Search term '%s' has no = sign; skipping it...\n", t)
-	} else {
-	    ids[x[0]] = x[1]
+	ids := map[string]string{}
+	for _, t := range searchTerms {
+		x := strings.SplitN(t, "=", 2)
+		if len(x) < 2 {
+			fmt.Printf("Search term '%s' has no = sign; skipping it...\n", t)
+		} else {
+			ids[x[0]] = x[1]
+		}
 	}
-    }
-    return ids
+	return ids
 }
 
 func search() {
@@ -69,16 +70,16 @@ func search() {
 	studyID := viper.GetString("study")
 	client := createClient()
 
-	// -a analysis-id, -d donor-id, -f file-id, -sa -sample-id, 
-        // -sp specimen-id 
+	// -a analysis-id, -d donor-id, -f file-id, -sa -sample-id,
+	// -sp specimen-id
 	// -t search-terms ([]), -i info(false)
-        var responseBody string
+	var responseBody string
 
-	if  len(searchTerms) > 0 {
-	    responseBody = client.InfoSearch(studyID, includeInfo, getTerms())
-        } else {
-	    responseBody = client.IdSearch(studyID, getIds())
-        }
+	if len(searchTerms) > 0 {
+		responseBody = client.InfoSearch(studyID, includeInfo, getTerms())
+	} else {
+		responseBody = client.IdSearch(studyID, getIds())
+	}
 
 	fmt.Println(string(responseBody))
 }

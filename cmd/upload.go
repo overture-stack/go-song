@@ -19,15 +19,16 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
 )
 
 var asyncFlag bool
+
 func init() {
 	RootCmd.AddCommand(uploadCmd)
-	uploadCmd.Flags().BoolVarP(&asyncFlag,"async", "a", false, "Upload asynchronously")
+	uploadCmd.Flags().BoolVarP(&asyncFlag, "async", "a", false, "Upload asynchronously")
 }
 
 func upload(filePath string) {
@@ -42,7 +43,7 @@ func upload(filePath string) {
 	if len(b) < 1 {
 		panic("File does not have any content!")
 	}
-	
+
 	client := createClient()
 	responseBody := client.Upload(studyID, b, asyncFlag)
 	fmt.Println(string(responseBody))

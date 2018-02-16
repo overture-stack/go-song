@@ -16,20 +16,21 @@
  */
 
 package song
+
 import (
-    "fmt"
+	"fmt"
 )
 
 func ExampleSearch() {
-   x := map[string]string{ "search1": "one", "search2":"two" }
-   y := createInfoSearchJSON(true, x)
-  fmt.Printf("y=%s\n",y)
+	x := map[string]string{"search1": "one", "search2": "two"}
+	y := createInfoSearchJSON(true, x)
+	fmt.Printf("y=%s\n", y)
 
-   x = map[string]string{ "a": "1", "b": "2", "c": "3" }
-   y = createInfoSearchJSON(false, x)
-   fmt.Printf("y=%s",y)
+	x = map[string]string{"a": "1", "b": "2", "c": "3"}
+	y = createInfoSearchJSON(false, x)
+	fmt.Printf("y=%s", y)
 
-//Output:
-//y={"includeInfo":true,"searchTerms":[{"key":"search1","value":"one"},{"key":"search2","value":"two"}]}
-//y={"includeInfo":false,"searchTerms":[{"key":"a","value":"1"},{"key":"b","value":"2"},{"key":"c","value":"3"}]}
+	//Output:
+	//y={"includeInfo":true,"searchTerms":[{"key":"search1","value":"one"},{"key":"search2","value":"two"}]}
+	//y={"includeInfo":false,"searchTerms":[{"key":"a","value":"1"},{"key":"b","value":"2"},{"key":"c","value":"3"}]}
 }

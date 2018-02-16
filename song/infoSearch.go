@@ -15,32 +15,33 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package song 
+package song
 
 import (
 	"encoding/json"
 )
+
 type InfoKey struct {
-	Key string  `json:"key"`
+	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
 type InfoSearchRequest struct {
-	IncludeInfo bool `json:"includeInfo"`
+	IncludeInfo bool      `json:"includeInfo"`
 	SearchTerms []InfoKey `json:"searchTerms"`
 }
 
 func createInfoSearchRequest(includeInfo bool, terms map[string]string) InfoSearchRequest {
 	var searchTerms = []InfoKey{}
-	for k,v := range terms {
-		searchTerms=append(searchTerms, InfoKey{k,v})
+	for k, v := range terms {
+		searchTerms = append(searchTerms, InfoKey{k, v})
 	}
 	return InfoSearchRequest{includeInfo, searchTerms}
 }
 
 func createInfoSearchJSON(includeInfo bool, terms map[string]string) []byte {
 	data := createInfoSearchRequest(includeInfo, terms)
-	searchRequest, err := json.Marshal(data) 
+	searchRequest, err := json.Marshal(data)
 
 	if err != nil {
 		panic(err)

@@ -24,20 +24,21 @@ import (
 )
 
 var pFlag bool
+
 func init() {
 	RootCmd.AddCommand(statusCmd)
-	statusCmd.Flags().BoolVarP(&pFlag,"ping","p",false,"Just check if server is alive")
+	statusCmd.Flags().BoolVarP(&pFlag, "ping", "p", false, "Just check if server is alive")
 }
 
 func getStatus(uploadID string) {
 	var responseBody string
 	studyID := viper.GetString("study")
-	client := createClient() 
-	if (pFlag) {
-	    responseBody = client.GetServerStatus()
+	client := createClient()
+	if pFlag {
+		responseBody = client.GetServerStatus()
 	} else {
-	    responseBody = client.GetStatus(studyID, uploadID)
-        }
+		responseBody = client.GetStatus(studyID, uploadID)
+	}
 	fmt.Println(responseBody)
 }
 
@@ -48,9 +49,9 @@ var statusCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var uploadID string
 		if len(args) > 0 {
-		   uploadID=args[0]
+			uploadID = args[0]
 		} else {
-		  uploadID="" 
+			uploadID = ""
 		}
 		getStatus(uploadID)
 	},

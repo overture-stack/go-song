@@ -16,14 +16,14 @@
  */
 
 package song
+
 import (
-    "fmt"
+	"fmt"
 )
 
-
 func ExampleManifest() {
-   analysisId := "AN123"
-   json := `[
+	analysisId := "AN123"
+	json := `[
   {
     "info": {
       "randomFile1Field": "someFile1Value"
@@ -51,13 +51,13 @@ func ExampleManifest() {
     "fileAccess": "controlled"
   }
 ]`
-   x := createManifest(analysisId, json)
-   y := "AN123\t\t\n" + "c5066ab9-15be-5995-b73c-499c0635a6d5\tmyFilename1.txt\tmyMd51\n" + "01888719-1949-5406-90a0-5ccba98d9a4a\tmyFilename2.txt\tmyMd52\n"
-  // fmt.Printf("x=%x\ny=%x",x,y)
-  if x != y {
-     fmt.Print("Not the same\n")
-  } else {
-     fmt.Print("OK")
-  }
-  //Output: OK
+	x := createManifest(analysisId, json)
+	y := "AN123\t\t\n" + "c5066ab9-15be-5995-b73c-499c0635a6d5\tmyFilename1.txt\tmyMd51\n" + "01888719-1949-5406-90a0-5ccba98d9a4a\tmyFilename2.txt\tmyMd52\n"
+	// fmt.Printf("x=%x\ny=%x",x,y)
+	if x != y {
+		fmt.Print("Not the same\n")
+	} else {
+		fmt.Print("OK")
+	}
+	//Output: OK
 }
