@@ -18,8 +18,10 @@
 package song
 
 import (
-	"fmt"
 	"net/url"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func createEndpoint(address string) Endpoint {
@@ -30,113 +32,84 @@ func createEndpoint(address string) Endpoint {
 	return Endpoint{a}
 }
 
-func display(address url.URL) {
-	fmt.Println(address.String())
-}
-
-func ExampleUpload() {
+func TestUpload(t *testing.T) {
 	e := createEndpoint("http://test.com")
 	studyId := "ABC123"
-	isAsync := false
 
-	x := e.Upload(studyId, isAsync)
+	x := e.Upload(studyId, false)
+	assert.Equal(t, x.String(), "http://test.com/upload/ABC123", "Upload(async=false)")
 
-	isAsync = true
-	y := e.Upload(studyId, isAsync)
-
-	display(x)
-	display(y)
-
-	// Output:
-	// http://test.com/upload/ABC123
-	// http://test.com/upload/ABC123/async
+	x = e.Upload(studyId, true)
+	assert.Equal(t, x.String(), "http://test.com/upload/ABC123/async", "Upload(async=true)")
 }
 
-func ExampleGetStatus() {
+func TestGetStatus(t *testing.T) {
 	e := createEndpoint("http://www.mrap.org")
 	studyId := "XYZ234"
 	uploadId := "UP-AB2345"
 
 	x := e.GetStatus(studyId, uploadId)
-	display(x)
-
-	// Output:
-	// http://www.mrap.org/upload/XYZ234/status/UP-AB2345
+	assert.Equal(t, x.String(), "http://www.mrap.org/upload/XYZ234/status/UP-AB2345", "GetStatus()")
 }
 
-func ExampleIsAlive() {
+func TestIsAlive(t *testing.T) {
 	e := createEndpoint("https://www.catfur.org")
 	x := e.IsAlive()
-	display(x)
-
-	// Output: https://www.catfur.org/isAlive
+	assert.Equal(t, x.String(), "https://www.catfur.org/isAlive", "IsAlive()")
 }
 
-func ExampleSave() {
+func TestSave(t *testing.T) {
 	e := createEndpoint("https://dcc.icgc.org:8080")
 	studyId := "XYZ234"
 	uploadId := "UP-AB2345"
+	expected := "https://dcc.icgc.org:8080/upload/XYZ234/save/UP-AB2345?ignoreAnalysisIdCollisions="
 
 	x := e.Save(studyId, uploadId, true)
-	display(x)
+	assert.Equal(t, x.String(), expected+"true", "Save(true)")
 
-	y := e.Save(studyId, uploadId, false)
-	display(y)
-
-	// Output:
-	// https://dcc.icgc.org:8080/upload/XYZ234/save/UP-AB2345?ignoreAnalysisIdCollisions=true
-	// https://dcc.icgc.org:8080/upload/XYZ234/save/UP-AB2345?ignoreAnalysisIdCollisions=false
+	x = e.Save(studyId, uploadId, false)
+	assert.Equal(t, x.String(), expected+"false", "Save(false)")
 }
 
-func ExamplePublish() {
+func TestPublish(t *testing.T) {
 	e := createEndpoint("http://example.org:12345")
 	studyId, analysisId := "XQA-𝜆123", "A2345-999-7012"
 	x := e.Publish(studyId, analysisId)
-	display(x)
-
-	// Output: http://example.org:12345/studies/XQA-%F0%9D%9C%86123/analysis/publish/A2345-999-7012
+	assert.Equal(t, x.String(), "http://example.org:12345/studies/XQA-%F0%9D%9C%86123/analysis/publish/A2345-999-7012",
+		"Publish()")
 }
 
-func ExampleSuppress() {
+func TestSuppress(t *testing.T) {
 	e := createEndpoint("http://www.testing.com")
 	studyId, analysisId := "ABC123", "AN-123579"
 	x := e.Suppress(studyId, analysisId)
-	display(x)
-
-	// Output: http://www.testing.com/studies/ABC123/analysis/suppress/AN-123579
-
+	assert.Equal(t, x.String(), "http://www.testing.com/studies/ABC123/analysis/suppress/AN-123579", "Suppress()")
 }
 
-func ExampleGetAnalysis() {
+func TestGetAnalysis(t *testing.T) {
 	e := createEndpoint("http://abc.de")
 	studyId, analysisId := "ABC123", "AN-123579"
 	x := e.GetAnalysis(studyId, analysisId)
-	display(x)
-	// Output: http://abc.de/studies/ABC123/analysis/AN-123579
-
+	assert.Equal(t, x.String(), "http://abc.de/studies/ABC123/analysis/AN-123579", "GetAnalysis()")
 }
 
-func ExampleGetAnalysisFiles() {
+func TestGetAnalysisFiles(t *testing.T) {
 	e := createEndpoint("https://localhost:8080")
 	studyId, analysisId := "XYZ2345", "13"
 	x := e.GetAnalysisFiles(studyId, analysisId)
-	display(x)
-	// Output: https://localhost:8080/studies/XYZ2345/analysis/13/files
+	assert.Equal(t, x.String(), "https://localhost:8080/studies/XYZ2345/analysis/13/files", "GetAnalysisFiles()")
 }
 
-func ExampleIdSearch() {
+func TestIdSearch(t *testing.T) {
 	e := createEndpoint("http://abc.de:123")
 	studyId := "ABC123"
 	x := e.IdSearch(studyId)
-	display(x)
-	// Output: http://abc.de:123/studies/ABC123/analysis/search/id
+	assert.Equal(t, x.String(), "http://abc.de:123/studies/ABC123/analysis/search/id", "IdSearch()")
 }
 
-func ExampleInfoSearch() {
-
+func TestInfoSearch(t *testing.T) {
 	e := createEndpoint("http://xyz.ai:23")
 	studyId := "XYZ2345"
 	x := e.InfoSearch(studyId)
-	display(x)
-	// Output: http://xyz.ai:23/studies/XYZ2345/analysis/search/info
+	assert.Equal(t, x.String(), "http://xyz.ai:23/studies/XYZ2345/analysis/search/info", "InfoSearch()")
 }

@@ -18,19 +18,20 @@
 package song
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-func ExampleSearch() {
+func TestInfoSearchRequest(t *testing.T) {
 	x := map[string]string{"search1": "one", "search2": "two"}
-	y := createInfoSearchJSON(true, x)
-	fmt.Printf("y=%s\n", y)
+	y := createInfoSearchRequest(true, x)
+	z := InfoSearchRequest{true, []InfoKey{InfoKey{"search1", "one"}, InfoKey{"search2", "two"}}}
 
-	x = map[string]string{"a": "1", "b": "2", "c": "3"}
-	y = createInfoSearchJSON(false, x)
-	fmt.Printf("y=%s", y)
+	assert.Equal(t, y, z, "Info search request (true)")
 
-	//Output:
-	//y={"includeInfo":true,"searchTerms":[{"key":"search1","value":"one"},{"key":"search2","value":"two"}]}
-	//y={"includeInfo":false,"searchTerms":[{"key":"a","value":"1"},{"key":"b","value":"2"},{"key":"c","value":"3"}]}
+	x = map[string]string{"a": "1", "b": "2"}
+	y = createInfoSearchRequest(false, x)
+	z = InfoSearchRequest{false, []InfoKey{InfoKey{"a", "1"}, InfoKey{"b", "2"}}}
+
+	assert.Equal(t, y, z, "Info search request (false)")
 }

@@ -19,6 +19,7 @@ package song
 
 import (
 	"encoding/json"
+	"sort"
 )
 
 type InfoKey struct {
@@ -33,7 +34,16 @@ type InfoSearchRequest struct {
 
 func createInfoSearchRequest(includeInfo bool, terms map[string]string) InfoSearchRequest {
 	var searchTerms = []InfoKey{}
-	for k, v := range terms {
+	var searchKeys []string
+
+	for k, _ := range terms {
+		searchKeys = append(searchKeys, k)
+	}
+
+	sort.Strings(searchKeys)
+
+	for _, k := range searchKeys {
+		v := terms[k]
 		searchTerms = append(searchTerms, InfoKey{k, v})
 	}
 	return InfoSearchRequest{includeInfo, searchTerms}

@@ -18,10 +18,11 @@
 package song
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-func ExampleManifest() {
+func TestManfiest(t *testing.T) {
 	analysisId := "AN123"
 	json := `[
   {
@@ -53,11 +54,5 @@ func ExampleManifest() {
 ]`
 	x := createManifest(analysisId, json)
 	y := "AN123\t\t\n" + "c5066ab9-15be-5995-b73c-499c0635a6d5\tmyFilename1.txt\tmyMd51\n" + "01888719-1949-5406-90a0-5ccba98d9a4a\tmyFilename2.txt\tmyMd52\n"
-	// fmt.Printf("x=%x\ny=%x",x,y)
-	if x != y {
-		fmt.Print("Not the same\n")
-	} else {
-		fmt.Print("OK")
-	}
-	//Output: OK
+	assert.Equal(t, x, y, "createManifest()")
 }
