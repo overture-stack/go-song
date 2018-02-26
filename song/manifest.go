@@ -43,7 +43,7 @@ func createManifest(analysisID string, data string) string {
 
 	err := json.Unmarshal([]byte(data), &files)
 	if err != nil {
-		panic("Can't unmarshal '" + data + "'")
+		panic("Couldn't convert the following JSON string to an array of manifestFile objects: '" + data + "'")
 	}
 
 	manifest := analysisID + "\t\t\n"

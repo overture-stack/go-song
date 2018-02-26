@@ -38,7 +38,6 @@ Please use the configure command, --config option, or --accessToken and --songUR
 
 // RootCmd is the Base Command for CLI Application
 var RootCmd = &cobra.Command{
-	// Use:   `mrap`,
 	Short: `CLI Utility for uploading metadata to a SONG repository`,
 	Long:  `CLI Utility for uploading metadata to a SONG repository`,
 	Run: func(cmd *cobra.Command, args []string) {
