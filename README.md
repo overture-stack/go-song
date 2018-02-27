@@ -4,3 +4,4 @@
 
 CLI client for SONG, written in Go.
 
+To build, run ``make; make test``

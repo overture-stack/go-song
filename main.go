@@ -19,9 +19,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/overture-stack/song-client/cmd"
 	"os"
-
-	"github.com/andricdu/go-song/cmd"
 )
 
 func main() {

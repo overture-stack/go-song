@@ -19,40 +19,37 @@ package cmd
 
 import (
 	"fmt"
+	"net/url"
+
+	"github.com/overture-stack/song-client/song"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var pFlag bool
-
 func init() {
-	RootCmd.AddCommand(statusCmd)
-	statusCmd.Flags().BoolVarP(&pFlag, "ping", "p", false, "Just check if server is alive")
+	RootCmd.AddCommand(suppressCmd)
 }
 
-func getStatus(uploadID string) {
-	var responseBody string
-	studyID := viper.GetString("study")
-	client := createClient()
-	if pFlag {
-		responseBody = client.GetServerStatus()
-	} else {
-		responseBody = client.GetStatus(studyID, uploadID)
+func suppress(analysisID string) {
+	// init song client
+	studyID, accessToken := viper.GetString("study"), viper.GetString("accessToken")
+	songURL, err := url.Parse(viper.GetString("songURL"))
+	if err != nil {
+		panic(err)
 	}
-	fmt.Println(responseBody)
+	client := song.CreateClient(accessToken, songURL)
+
+	// use song client
+	responseBody := client.Suppress(studyID, analysisID)
+	fmt.Println(string(responseBody))
 }
 
-var statusCmd = &cobra.Command{
-	Use:   "status -p OR status <uploadID>",
-	Short: "Get status of uploaded analysis",
-	Long:  `Get status of uploaded analysis`,
+var suppressCmd = &cobra.Command{
+	Use:   "suppress <analysisID>",
+	Short: "Suppress Analysis",
+	Long:  `Suppresses an analysis`,
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		var uploadID string
-		if len(args) > 0 {
-			uploadID = args[0]
-		} else {
-			uploadID = ""
-		}
-		getStatus(uploadID)
+		suppress(args[0])
 	},
 }
