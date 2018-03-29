@@ -3,7 +3,7 @@
 ## Quick Start
 ### 1. Getting the program.
 
-a) If your computer is running Linux or MacOS, you can just download a pre-built binary from [here](). Pick the version that fits your operating system, download it, and move it into a directory where you want to keep it. Make sure that directory is listed in your PATH environment variable; if it isn't, add it.
+a) If your computer is running Linux or MacOS, you can just download a pre-built binary from [here](https://artifacts.oicr.on.ca/artifactory/webapp/#/artifacts/browse/tree/General/overture-binaries/0.0.1/linux_64/song-client). Pick the version that fits your operating system, download it, and move it into a directory where you want to keep it. Make sure that directory is listed in your PATH environment variable; if it isn't, add it.
 
 Try typing ```song-client help```; if it gives you a screen full of help text, then the program is working. Your installation is done!
 
@@ -49,7 +49,7 @@ See ```song help configure``` for full details; see ```song-client help``` for
 a full list of all the commands you can run, or check out the examples below.  
 
 The output of the song-client is JSON; and one program that is often useful
-for processing JSON data is called 'jq'. You can find it [here]().
+for processing JSON data is called 'jq'. You can find it [here](https://stedolan.github.io/jq/).
 
 Some of the examples use it; but you don't need it. 'jq' produces nicely formatted, coloured JSON output; and lets you pick specific fields in the JSON output 
 to display. Without it, the JSON is harder to read, and you won't be able to
