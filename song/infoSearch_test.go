@@ -15,34 +15,23 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cmd
+package song
 
 import (
-	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-var iFlag bool
+func TestInfoSearchRequest(t *testing.T) {
+	x := map[string]string{"search1": "one", "search2": "two"}
+	y := createInfoSearchRequest(true, x)
+	z := InfoSearchRequest{true, []InfoKey{InfoKey{"search1", "one"}, InfoKey{"search2", "two"}}}
 
-func init() {
-	RootCmd.AddCommand(saveCmd)
-	saveCmd.Flags().BoolVarP(&iFlag, "ignoreCollisions", "i", false, "ignore Collisions with IDs")
-}
+	assert.Equal(t, y, z, "Info search request (true)")
 
-func save(uploadID string) {
-	studyID := viper.GetString("study")
-	client := createClient()
-	responseBody := client.Save(studyID, uploadID, iFlag)
-	fmt.Println(string(responseBody))
-}
+	x = map[string]string{"a": "1", "b": "2"}
+	y = createInfoSearchRequest(false, x)
+	z = InfoSearchRequest{false, []InfoKey{InfoKey{"a", "1"}, InfoKey{"b", "2"}}}
 
-var saveCmd = &cobra.Command{
-	Use:   "save <uploadID>",
-	Short: "Save the uploaded Analysis",
-	Long:  `Save the uploaded Analysis`,
-	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		save(args[0])
-	},
+	assert.Equal(t, y, z, "Info search request (false)")
 }

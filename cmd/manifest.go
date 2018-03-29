@@ -21,38 +21,30 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
 )
 
-var pFlag bool
-
 func init() {
-	RootCmd.AddCommand(statusCmd)
-	statusCmd.Flags().BoolVarP(&pFlag, "ping", "p", false, "Just check if server is alive")
+	RootCmd.AddCommand(manifestCmd)
 }
 
-func getStatus(uploadID string) {
-	var responseBody string
-	studyID := viper.GetString("study")
+func manifest(analysisID string, filePath string) {
 	client := createClient()
-	if pFlag {
-		responseBody = client.GetServerStatus()
-	} else {
-		responseBody = client.GetStatus(studyID, uploadID)
+	studyID := viper.GetString("study")
+	responseBody := client.Manifest(studyID, analysisID)
+
+	// read the file
+	err := ioutil.WriteFile(filePath, []byte(responseBody), 0644)
+	if err != nil {
+		fmt.Print(err)
 	}
-	fmt.Println(responseBody)
 }
 
-var statusCmd = &cobra.Command{
-	Use:   "status -p OR status <uploadID>",
-	Short: "Get status of uploaded analysis",
-	Long:  `Get status of uploaded analysis`,
+var manifestCmd = &cobra.Command{
+	Use:   "manifest <analysisID> <filename>",
+	Short: "Upload Analysis Metadata",
+	Long:  `Uploads Metadata JSON describing an analysis and files for validation`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var uploadID string
-		if len(args) > 0 {
-			uploadID = args[0]
-		} else {
-			uploadID = ""
-		}
-		getStatus(uploadID)
+		manifest(args[0], args[1])
 	},
 }

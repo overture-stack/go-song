@@ -15,34 +15,41 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package cmd
+package song
 
 import (
-	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"encoding/json"
 )
 
-var iFlag bool
-
-func init() {
-	RootCmd.AddCommand(saveCmd)
-	saveCmd.Flags().BoolVarP(&iFlag, "ignoreCollisions", "i", false, "ignore Collisions with IDs")
+type manifestFile struct {
+	Info       map[string]string
+	ObjectId   string
+	AnalysisId string
+	StudyId    string
+	FileName   string
+	FileSize   int64
+	FileType   string
+	FileAccess string
+	FileMd5sum string
 }
 
-func save(uploadID string) {
-	studyID := viper.GetString("study")
-	client := createClient()
-	responseBody := client.Save(studyID, uploadID, iFlag)
-	fmt.Println(string(responseBody))
+func (f *manifestFile) String() string {
+	return f.ObjectId + "\t" + f.FileName + "\t" + f.FileMd5sum
+	return ""
 }
 
-var saveCmd = &cobra.Command{
-	Use:   "save <uploadID>",
-	Short: "Save the uploaded Analysis",
-	Long:  `Save the uploaded Analysis`,
-	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		save(args[0])
-	},
+func createManifest(analysisID string, data string) string {
+	var files []manifestFile
+
+	err := json.Unmarshal([]byte(data), &files)
+	if err != nil {
+		panic("Couldn't convert the following JSON string to an array of manifestFile objects: '" + data + "'")
+	}
+
+	manifest := analysisID + "\t\t\n"
+	for _, f := range files {
+		manifest += f.String() + "\n"
+	}
+
+	return manifest
 }
